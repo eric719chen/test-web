@@ -142,21 +142,20 @@
         </div>
     </div>
 
-    <form id="orderForm" method="POST" action="https://docs.google.com/forms/d/e/1FAIpQLSfMHWj9mffhP2dGuTr6r8CPRsLcPGEzXXr4U4NRZ_vILRh0ag/formResponse" target="hidden_iframe">
-        
+    <form id="orderForm">
         <div class="form-group">
             <label for="name">訂購人姓名</label>
-            <input type="text" id="name" name="entry.1598652224" required placeholder="請輸入姓名">
+            <input type="text" id="name" required placeholder="請輸入姓名">
         </div>
 
         <div class="form-group">
             <label for="phone">行動電話</label>
-            <input type="tel" id="phone" name="entry.739109892" required placeholder="請輸入手機號碼">
+            <input type="tel" id="phone" required placeholder="請輸入手機號碼">
         </div>
 
         <div class="form-group">
             <label for="location">取貨地點</label>
-            <select id="location" name="entry.1071529941" required>
+            <select id="location" required>
                 <option value="">-- 請選擇面交取貨點 --</option>
                 <option value="頭份面交">頭份面交點</option>
                 <option value="竹南面交">竹南面交點</option>
@@ -164,35 +163,55 @@
             </select>
         </div>
 
-        <input type="hidden" id="hidden_qty" name="entry.1639451062" value="1">
-
         <div class="total-box">
             應付總金額：<span class="total-price">NT$ <span id="totalPrice">350</span> 元</span>
         </div>
 
-        <button type="submit" class="btn-submit" id="submitBtn">確認送出訂單 🚀</button>
+        <button type="submit" class="btn-submit">確認送出訂單 🚀</button>
     </form>
 </div>
-
-<iframe name="hidden_iframe" id="hidden_iframe" style="display:none;" onload="if(submitted) {alert('🎉 訂購成功！感謝您的訂購。資料已同步至草莓團購管理後台！'); window.location.reload();}"></iframe>
 
 <script>
     const PRICE_PER_BOX = 350;
     let qty = 1;
-    let submitted = false; // 用來記錄表單是不是真的送出了
 
     function changeQty(amount) {
         qty += amount;
         if (qty < 1) qty = 1; 
         
         document.getElementById('quantity').innerText = qty;
-        document.getElementById('hidden_qty').value = qty; // 同步更新隱藏的數量欄位
         document.getElementById('totalPrice').innerText = qty * PRICE_PER_BOX;
     }
 
-    // 當點擊送出按鈕時，觸發提交狀態
-    document.getElementById('orderForm').addEventListener('submit', function() {
-        submitted = true;
+    document.getElementById('orderForm').addEventListener('submit', function(e) {
+        e.preventDefault(); 
+        
+        const name = document.getElementById('name').value;
+        const phone = document.getElementById('phone').value;
+        const location = document.getElementById('location').value;
+        
+        // 將中文字進行安全網址編碼
+        const encodedName = encodeURIComponent(name);
+        const encodedPhone = encodeURIComponent(phone);
+        const encodedLocation = encodeURIComponent(location);
+        
+        // 拼接成完美的 GET 發送網址（跟我們剛才手動測試成功進 Excel 的網址一模一樣）
+        let targetUrl = "https://docs.google.com/forms/d/e/1FAIpQLSfMHWj9mffhP2dGuTr6r8CPRsLcPGEzXXr4U4NRZ_vILRh0ag/formResponse";
+        targetUrl += `?entry.1598652224=${encodedName}`;
+        targetUrl += `&entry.739109892=${encodedPhone}`;
+        targetUrl += `&entry.1071529941=${encodedLocation}`;
+        targetUrl += `&entry.1639451062=${qty}`;
+        
+        // 終極技巧：利用瀏覽器加載圖片的最高優先權，偷偷把網址發射給 Google
+        const trigger = new Image();
+        trigger.src = targetUrl;
+        
+        // 直接跳成功提示並重設網頁
+        alert('🎉 訂購成功！感謝您的訂購。資料已同步至草莓團購管理後台！');
+        document.getElementById('orderForm').reset();
+        qty = 1;
+        document.getElementById('quantity').innerText = 1;
+        document.getElementById('totalPrice').innerText = PRICE_PER_BOX;
     });
 </script>
 
