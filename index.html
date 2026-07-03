@@ -1,11 +1,194 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>我的第一個雲端網頁</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🍓 鮮採草莓團購收單系統</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #fff5f5;
+            color: #4a5568;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px rgba(226, 115, 115, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #e53e3e;
+            margin-bottom: 5px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #718096;
+            font-size: 14px;
+            margin-bottom: 25px;
+        }
+        .product-card {
+            border: 2px solid #fed7d7;
+            border-radius: 12px;
+            padding: 15px;
+            background-color: #ffffff;
+            margin-bottom: 20px;
+        }
+        .product-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #9b2c2c;
+        }
+        .product-price {
+            color: #e53e3e;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 5px 0 15px 0;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #4a5568;
+        }
+        input[type="text"], input[type="tel"], select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #cbd5e0;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .btn-qty {
+            background-color: #feb2b2;
+            border: none;
+            color: #9b2c2c;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn-qty:hover {
+            background-color: #fc8181;
+        }
+        .qty-display {
+            font-size: 18px;
+            font-weight: bold;
+            width: 30px;
+            text-align: center;
+        }
+        .total-box {
+            background-color: #fff5f5;
+            border: 1px dashed #feb2b2;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: right;
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        .total-price {
+            color: #e53e3e;
+            font-size: 24px;
+        }
+        .btn-submit {
+            background-color: #e53e3e;
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 12px;
+            font-size: 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        .btn-submit:hover {
+            background-color: #c53030;
+        }
+    </style>
 </head>
 <body>
-    <h1>🎉 恭喜！全雲端網頁建置成功！</h1>
-    <p>完全不用安裝本機資料庫跟系統，全部在雲端搞定！</p>
+
+<div class="container">
+    <h1>🍓 產地直送！香甜草莓團購</h1>
+    <div class="subtitle">今日採收、明日面交，新鮮吃得到！</div>
+
+    <div class="product-card">
+        <div class="product-title">大果草莓 (1斤裝 / 盒)</div>
+        <div class="product-price">團購優惠價：NT$ 350 元</div>
+        
+        <div class="form-group">
+            <label>訂購數量</label>
+            <div class="quantity-control">
+                <button type="button" class="btn-qty" onclick="changeQty(-1)">-</button>
+                <span class="qty-display" id="quantity">1</span>
+                <button type="button" class="btn-qty" onclick="changeQty(1)">+</button>
+            </div>
+        </div>
+    </div>
+
+    <form id="orderForm">
+        <div class="form-group">
+            <label for="name">訂購人姓名</label>
+            <input type="text" id="name" required placeholder="請輸入姓名">
+        </div>
+
+        <div class="form-group">
+            <label for="phone">行動電話</label>
+            <input type="tel" id="phone" required placeholder="請輸入手機號碼">
+        </div>
+
+        <div class="form-group">
+            <label for="location">取貨地點</label>
+            <select id="location" required>
+                <option value="">-- 請選擇面交取貨點 --</option>
+                <option value="頭份面交">頭份面交點</option>
+                <option value="竹南面交">竹南面交點</option>
+                <option value="竹北面交">竹北面交點</option>
+            </select>
+        </div>
+
+        <div class="total-box">
+            應付總金額：<span class="total-price">NT$ <span id="totalPrice">350</span> 元</span>
+        </div>
+
+        <button type="submit" class="btn-submit">確認送出訂單 🚀</button>
+    </form>
+</div>
+
+<script>
+    const PRICE_PER_BOX = 350;
+    let qty = 1;
+
+    function changeQty(amount) {
+        qty += amount;
+        if (qty < 1) qty = 1; // 至少買一盒
+        
+        document.getElementById('quantity').innerText = qty;
+        document.getElementById('totalPrice').innerText = qty * PRICE_PER_BOX;
+    }
+
+    // 表單送出事件（目前先設定防呆提示）
+    document.getElementById('orderForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        alert('功能準備中！等等我們來串接 Google 表單串流資料庫！');
+    });
+</script>
+
 </body>
 </html>
