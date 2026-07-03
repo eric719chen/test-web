@@ -167,9 +167,11 @@
             應付總金額：<span class="total-price">NT$ <span id="totalPrice">350</span> 元</span>
         </div>
 
-        <button type="submit" class="btn-submit">確認送出訂單 🚀</button>
+        <button type="submit" class="btn-submit" id="submitBtn">確認送出訂單 🚀</button>
     </form>
 </div>
+
+<iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
 
 <script>
     const PRICE_PER_BOX = 350;
@@ -183,10 +185,48 @@
         document.getElementById('totalPrice').innerText = qty * PRICE_PER_BOX;
     }
 
-    // 表單送出事件（目前先設定防呆提示）
+    // 當表單送出時，自動打包資料送到 Google 表單
     document.getElementById('orderForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        alert('功能準備中！等等我們來串接 Google 表單串流資料庫！');
+        e.preventDefault(); // 阻止原本的網頁跳轉
+        
+        const name = document.getElementById('name').value;
+        const phone = document.getElementById('phone').value;
+        const location = document.getElementById('location').value;
+        
+        // 建立一個隱藏的表單並自動發送
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = 'https://docs.google.com/forms/d/e/1FAIpQLSfMHWj9mffhP2dGuTr6r8CPRsLcPGEzXXr4U4NRZ_vILRh0ag/formResponse';
+        form.target = 'hidden_iframe'; // 讓它在看不到的地方發送
+
+        // 填入對應的 Google Entry ID
+        const fields = {
+            'entry.1598652224': name,
+            'entry.739109892': phone,
+            'entry.1071529941': location,
+            'entry.1639451062': qty
+        };
+
+        for (const key in fields) {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = key;
+            input.value = fields[key];
+            form.appendChild(input);
+        }
+
+        document.body.appendChild(form);
+        form.submit(); // 發送出去！
+        document.body.removeChild(form);
+
+        // 畫面上顯示成功提示
+        alert('🎉 訂購成功！感謝您的訂購。資料已同步至草莓團購管理後台！');
+        
+        // 重設表單
+        document.getElementById('orderForm').reset();
+        qty = 1;
+        document.getElementById('quantity').innerText = 1;
+        document.getElementById('totalPrice').innerText = PRICE_PER_BOX;
     });
 </script>
 
